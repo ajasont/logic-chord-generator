@@ -98,3 +98,79 @@ function getProgressionRoot(stepDegree, keyIdx, scaleIdx) {
 function getChordDurationBeats(chordDurationIdx) {
   return [1, 2, 4][chordDurationIdx];
 }
+
+// ============================================================
+// SCRIPTER PARAMETERS (11 total)
+// ============================================================
+var PluginParameters = [
+  // index 0
+  { name: 'Chord Type',      type: 'menu', valueStrings: CHORD_NAMES,   defaultValue: 0 },
+  // index 1
+  { name: 'Voicing',         type: 'menu', valueStrings: ['Close', 'Open', 'Spread'], defaultValue: 0 },
+  // index 2
+  { name: 'Transpose',       type: 'lin',  minValue: -12, maxValue: 12,  numberOfSteps: 24,  defaultValue: 0 },
+  // index 3
+  { name: 'Octave',          type: 'lin',  minValue: -2,  maxValue: 2,   numberOfSteps: 4,   defaultValue: 0 },
+  // index 4
+  { name: 'Progression On',  type: 'checkbox', defaultValue: 0 },
+  // index 5
+  { name: 'Key',             type: 'menu', valueStrings: KEY_NAMES,      defaultValue: 0 },
+  // index 6
+  { name: 'Scale',           type: 'menu', valueStrings: ['Major', 'Minor'], defaultValue: 0 },
+  // index 7
+  { name: 'Pattern',         type: 'menu', valueStrings: PATTERN_NAMES,  defaultValue: 0 },
+  // index 8
+  { name: 'Chord Duration',  type: 'menu', valueStrings: ['1 beat', '2 beats', '4 beats'], defaultValue: 0 },
+  // index 9
+  { name: 'Prog Chord Type', type: 'menu', valueStrings: CHORD_NAMES,   defaultValue: 0 },
+  // index 10
+  { name: 'Velocity',        type: 'lin',  minValue: 1,   maxValue: 127, numberOfSteps: 126, defaultValue: 100 },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+var state = {
+  chordTypeIdx:    0,
+  voicing:         0,
+  transpose:       0,
+  octave:          0,
+  progressionOn:   false,
+  key:             0,
+  scale:           0,
+  patternIdx:      0,
+  chordDuration:   0,
+  progChordTypeIdx: 0,
+  velocity:        100,
+  activeNotes:     {},   // root pitch -> [chord pitches] for trigger mode
+  progNotes:       [],   // currently sounding progression chord pitches
+  progStep:        0,    // current index into the active pattern
+  lastBoundary:    -1,   // last beat boundary where a progression chord fired
+};
+
+// ============================================================
+// PARAMETER CHANGE HANDLER
+// ============================================================
+function ParameterChanged(param, value) {
+  switch (param) {
+    case 0:  state.chordTypeIdx = value; break;
+    case 1:  state.voicing = value; break;
+    case 2:  state.transpose = value; break;
+    case 3:  state.octave = value; break;
+    case 4:
+      state.progressionOn = (value === 1);
+      if (!state.progressionOn) {
+        stopNotes(state.progNotes);
+        state.progNotes = [];
+        state.lastBoundary = -1;
+        state.progStep = 0;
+      }
+      break;
+    case 5:  state.key = value; break;
+    case 6:  state.scale = value; break;
+    case 7:  state.patternIdx = value; state.progStep = 0; break;
+    case 8:  state.chordDuration = value; break;
+    case 9:  state.progChordTypeIdx = value; break;
+    case 10: state.velocity = value; break;
+  }
+}
