@@ -223,3 +223,53 @@ function HandleMIDI(event) {
     event.send();
   }
 }
+
+// ============================================================
+// PROGRESSION ENGINE
+// ============================================================
+function fireProgressionChord() {
+  if (state.progNotes.length > 0) {
+    stopNotes(state.progNotes);
+    state.progNotes = [];
+  }
+
+  var pattern = PATTERNS[state.patternIdx];
+  var degree  = pattern[state.progStep];
+  var root    = getProgressionRoot(degree, state.key, state.scale);
+  var pitches = buildChordPitches(
+    root,
+    state.progChordTypeIdx,
+    state.voicing,
+    state.transpose,
+    state.octave
+  );
+
+  sendNotes(pitches, state.velocity);
+  state.progNotes = pitches;
+  state.progStep  = (state.progStep + 1) % pattern.length;
+}
+
+function ProcessMIDI() {
+  var info = GetTimingInfo();
+
+  if (!info.playing) {
+    if (state.progNotes.length > 0) {
+      stopNotes(state.progNotes);
+      state.progNotes  = [];
+      state.lastBoundary = -1;
+      state.progStep   = 0;
+    }
+    return;
+  }
+
+  if (!state.progressionOn) return;
+
+  var duration = getChordDurationBeats(state.chordDuration);
+  var beatPos  = info.blockStartBeat;
+  var boundary = Math.floor(beatPos / duration) * duration;
+
+  if (boundary > state.lastBoundary) {
+    state.lastBoundary = boundary;
+    fireProgressionChord();
+  }
+}
