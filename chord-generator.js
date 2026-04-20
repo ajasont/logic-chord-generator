@@ -159,7 +159,7 @@ function ParameterChanged(param, value) {
     case 3:  state.octave = value; break;
     case 4:
       state.progressionOn = (value === 1);
-      if (!state.progressionOn) {
+      if (!state.progressionOn && typeof stopNotes !== 'undefined') {
         stopNotes(state.progNotes);
         state.progNotes = [];
         state.lastBoundary = -1;
