@@ -31,3 +31,32 @@ function getIntervals(chordTypeIdx) {
   }
   return CHORD_TYPES[CHORD_NAMES[chordTypeIdx]].slice();
 }
+
+// ============================================================
+// VOICING AND PITCH BUILDING
+// ============================================================
+function applyVoicing(intervals, voicingType) {
+  var voiced = intervals.slice();
+  if (voicingType === 1) {
+    for (var i = 1; i < voiced.length; i += 2) {
+      voiced[i] += 12;
+    }
+  } else if (voicingType === 2) {
+    for (var i = 1; i < voiced.length; i++) {
+      voiced[i] += 12 * Math.floor((i + 1) / 2);
+    }
+  }
+  return voiced;
+}
+
+function clampPitch(pitch) {
+  return Math.max(0, Math.min(127, pitch));
+}
+
+function buildChordPitches(root, chordTypeIdx, voicingType, transpose, octaveShift) {
+  var intervals = getIntervals(chordTypeIdx);
+  var voiced = applyVoicing(intervals, voicingType);
+  return voiced.map(function(interval) {
+    return clampPitch(root + interval + transpose + (octaveShift * 12));
+  });
+}

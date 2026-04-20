@@ -62,4 +62,52 @@ assert('All chords start on root (0)', CHORD_NAMES.every(function(name) {
 }), true);
 assert('Out-of-bounds index returns [0]', getIntervals(99), [0]);
 
+function applyVoicing(intervals, voicingType) {
+  var voiced = intervals.slice();
+  if (voicingType === 1) {
+    for (var i = 1; i < voiced.length; i += 2) {
+      voiced[i] += 12;
+    }
+  } else if (voicingType === 2) {
+    for (var i = 1; i < voiced.length; i++) {
+      voiced[i] += 12 * Math.floor((i + 1) / 2);
+    }
+  }
+  return voiced;
+}
+
+function clampPitch(pitch) {
+  return Math.max(0, Math.min(127, pitch));
+}
+
+function buildChordPitches(root, chordTypeIdx, voicingType, transpose, octaveShift) {
+  var intervals = getIntervals(chordTypeIdx);
+  var voiced = applyVoicing(intervals, voicingType);
+  return voiced.map(function(interval) {
+    return clampPitch(root + interval + transpose + (octaveShift * 12));
+  });
+}
+
+// --- VOICING TESTS ---
+console.log('\n--- Voicing Tests ---');
+assert('Close voicing: major triad unchanged', applyVoicing([0, 4, 7], 0), [0, 4, 7]);
+assert('Open voicing: major triad raises index 1', applyVoicing([0, 4, 7], 1), [0, 16, 7]);
+assert('Open voicing: maj7 raises indexes 1 and 3', applyVoicing([0, 4, 7, 11], 1), [0, 16, 7, 23]);
+assert('Spread voicing: major triad', applyVoicing([0, 4, 7], 2), [0, 16, 19]);
+
+// --- PITCH BUILDING TESTS ---
+console.log('\n--- Pitch Building Tests ---');
+assert('C4 major triad close voicing no shift: [60,64,67]',
+  buildChordPitches(60, 0, 0, 0, 0), [60, 64, 67]);
+assert('C4 minor triad close voicing: [60,63,67]',
+  buildChordPitches(60, 1, 0, 0, 0), [60, 63, 67]);
+assert('C4 major triad transpose +2: [62,66,69]',
+  buildChordPitches(60, 0, 0, 2, 0), [62, 66, 69]);
+assert('C4 major triad octave +1: [72,76,79]',
+  buildChordPitches(60, 0, 0, 0, 1), [72, 76, 79]);
+assert('Pitch clamped at 127',
+  buildChordPitches(120, 4, 0, 0, 0), [120, 124, 127, 127]);
+assert('Pitch clamped at 0',
+  buildChordPitches(0, 0, 0, -12, 0), [0, 0, 0]);
+
 console.log('\nResults: ' + passed + ' passed, ' + failed + ' failed\n');
