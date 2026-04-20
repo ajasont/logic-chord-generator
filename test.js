@@ -41,6 +41,9 @@ var CHORD_TYPES = {
 var CHORD_NAMES = Object.keys(CHORD_TYPES);
 
 function getIntervals(chordTypeIdx) {
+  if (chordTypeIdx < 0 || chordTypeIdx >= CHORD_NAMES.length) {
+    return [0];
+  }
   return CHORD_TYPES[CHORD_NAMES[chordTypeIdx]].slice();
 }
 
@@ -57,5 +60,6 @@ assert('Half-Dim 7 intervals', getIntervals(19), [0, 3, 6, 10]);
 assert('All chords start on root (0)', CHORD_NAMES.every(function(name) {
   return CHORD_TYPES[name][0] === 0;
 }), true);
+assert('Out-of-bounds index returns [0]', getIntervals(99), [0]);
 
 console.log('\nResults: ' + passed + ' passed, ' + failed + ' failed\n');

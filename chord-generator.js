@@ -26,5 +26,8 @@ var CHORD_TYPES = {
 var CHORD_NAMES = Object.keys(CHORD_TYPES);
 
 function getIntervals(chordTypeIdx) {
+  if (chordTypeIdx < 0 || chordTypeIdx >= CHORD_NAMES.length) {
+    return [0];
+  }
   return CHORD_TYPES[CHORD_NAMES[chordTypeIdx]].slice();
 }
