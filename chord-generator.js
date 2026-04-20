@@ -174,3 +174,52 @@ function ParameterChanged(param, value) {
     case 10: state.velocity = value; break;
   }
 }
+
+// ============================================================
+// MIDI HELPERS
+// (NoteOn/NoteOff are Scripter globals — not available in Node.js)
+// ============================================================
+function sendNotes(pitches, velocity) {
+  for (var i = 0; i < pitches.length; i++) {
+    var note = new NoteOn();
+    note.pitch = pitches[i];
+    note.velocity = velocity;
+    note.send();
+  }
+}
+
+function stopNotes(pitches) {
+  for (var i = 0; i < pitches.length; i++) {
+    var note = new NoteOff();
+    note.pitch = pitches[i];
+    note.velocity = 0;
+    note.send();
+  }
+}
+
+// ============================================================
+// TRIGGER MODE — HandleMIDI
+// ============================================================
+function HandleMIDI(event) {
+  if (event instanceof NoteOn) {
+    var root = event.pitch;
+    var pitches = buildChordPitches(
+      root,
+      state.chordTypeIdx,
+      state.voicing,
+      state.transpose,
+      state.octave
+    );
+    sendNotes(pitches, event.velocity);
+    state.activeNotes[root] = pitches;
+
+  } else if (event instanceof NoteOff) {
+    var root = event.pitch;
+    if (state.activeNotes[root]) {
+      stopNotes(state.activeNotes[root]);
+      delete state.activeNotes[root];
+    }
+  } else {
+    event.send();
+  }
+}
