@@ -60,3 +60,41 @@ function buildChordPitches(root, chordTypeIdx, voicingType, transpose, octaveShi
     return clampPitch(root + interval + transpose + (octaveShift * 12));
   });
 }
+
+// ============================================================
+// SCALE AND PROGRESSION DEFINITIONS
+// ============================================================
+var SCALES = {
+  'Major': [0, 2, 4, 5, 7, 9, 11],
+  'Minor': [0, 2, 3, 5, 7, 8, 10],
+};
+
+var PATTERN_NAMES = [
+  'Classic (I-IV-V-I)',
+  'Pop (I-V-vi-IV)',
+  'Jazz (ii-V-I)',
+  '50s (I-vi-IV-V)',
+  'Minor (i-VII-VI-VII)',
+  'Blues (i-iv-i-V)',
+];
+var PATTERNS = [
+  [0, 3, 4, 0],
+  [0, 4, 5, 3],
+  [1, 4, 0],
+  [0, 5, 3, 4],
+  [0, 6, 5, 6],
+  [0, 3, 0, 4],
+];
+
+var KEY_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+function getProgressionRoot(stepDegree, keyIdx, scaleIdx) {
+  var scaleName = scaleIdx === 0 ? 'Major' : 'Minor';
+  var degrees = SCALES[scaleName];
+  var baseNote = 48 + keyIdx; // C3 = 48
+  return baseNote + degrees[stepDegree];
+}
+
+function getChordDurationBeats(chordDurationIdx) {
+  return [1, 2, 4][chordDurationIdx];
+}

@@ -110,4 +110,57 @@ assert('Pitch clamped at 127',
 assert('Pitch clamped at 0',
   buildChordPitches(0, 0, 0, -12, 0), [0, 0, 0]);
 
+// --- SCALE AND PROGRESSION DEFINITIONS ---
+var SCALES = {
+  'Major': [0, 2, 4, 5, 7, 9, 11],
+  'Minor': [0, 2, 3, 5, 7, 8, 10],
+};
+
+var PATTERN_NAMES = [
+  'Classic (I-IV-V-I)',
+  'Pop (I-V-vi-IV)',
+  'Jazz (ii-V-I)',
+  '50s (I-vi-IV-V)',
+  'Minor (i-VII-VI-VII)',
+  'Blues (i-iv-i-V)',
+];
+var PATTERNS = [
+  [0, 3, 4, 0],
+  [0, 4, 5, 3],
+  [1, 4, 0],
+  [0, 5, 3, 4],
+  [0, 6, 5, 6],
+  [0, 3, 0, 4],
+];
+
+var KEY_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+function getProgressionRoot(stepDegree, keyIdx, scaleIdx) {
+  var scaleName = scaleIdx === 0 ? 'Major' : 'Minor';
+  var degrees = SCALES[scaleName];
+  var baseNote = 48 + keyIdx; // C3 = 48
+  return baseNote + degrees[stepDegree];
+}
+
+function getChordDurationBeats(chordDurationIdx) {
+  return [1, 2, 4][chordDurationIdx];
+}
+
+// --- SCALE AND PROGRESSION TESTS ---
+console.log('\n--- Scale and Progression Tests ---');
+assert('6 patterns defined', PATTERNS.length, 6);
+assert('6 pattern names defined', PATTERN_NAMES.length, 6);
+assert('12 keys defined', KEY_NAMES.length, 12);
+assert('Major scale has 7 degrees', SCALES['Major'].length, 7);
+assert('Minor scale has 7 degrees', SCALES['Minor'].length, 7);
+assert('C major degree 0 root = 48 (C3)', getProgressionRoot(0, 0, 0), 48);
+assert('C major degree 4 root = 55 (G3)', getProgressionRoot(4, 0, 0), 55);
+assert('G major degree 0 root = 55 (G3)', getProgressionRoot(0, 7, 0), 55);
+assert('C minor degree 2 root = 51 (Eb3)', getProgressionRoot(2, 0, 1), 51);
+assert('Chord duration idx 0 = 1 beat', getChordDurationBeats(0), 1);
+assert('Chord duration idx 1 = 2 beats', getChordDurationBeats(1), 2);
+assert('Chord duration idx 2 = 4 beats', getChordDurationBeats(2), 4);
+assert('Classic pattern: [0,3,4,0]', PATTERNS[0], [0, 3, 4, 0]);
+assert('Jazz pattern: [1,4,0]', PATTERNS[2], [1, 4, 0]);
+
 console.log('\nResults: ' + passed + ' passed, ' + failed + ' failed\n');
