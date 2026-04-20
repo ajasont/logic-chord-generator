@@ -1,0 +1,5 @@
+- Single-note chord triggering with 20 extended chord types                                                                    
+  - 3 voicing modes (close, open, spread)                   
+  - 6 pattern-based progressions synced to Logic's tempo                                                                         
+  - 12 keys, major/minor scales                                                                                                  
+  - 34 passing tests 
